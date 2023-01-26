@@ -1,0 +1,36 @@
+Q1: 
+  Answer: --iidfile string
+
+Q2
+  Answer: 3
+Q3
+  Answer: 20530
+  Code:
+    SELECT COUNT(*) 
+    FROM green_taxi_data 
+    WHERE lpep_dropoff_datetime LIKE '2019-01-15%' 
+      AND lpep_pickup_datetime LIKE '2019-01-15%'
+Q4:
+  Answer: 2019-01-15
+  Code:
+    SELECT * 
+    FROM green_taxi_data 
+    WHERE trip_distance = (SELECT MAX(trip_distance) FROM green_taxi_data)
+Q5:
+  Answer: 2: 1282 ; 3: 254
+  Code:
+    SELECT COUNT(DISTINCT(index)) 
+    FROM green_taxi_data 
+    WHERE passenger_count = 2
+      AND lpep_pickup_datetime LiKE '2019-01-01%'
+Q6:
+  Answer: Long Island City/Queens Plaza
+  Code:
+    SELECT "Zone" 
+    FROM green_taxi_data JOIN taxi_zones ON "DOLocationID" = "LocationID"
+    WHERE tip_amount =
+      (SELECT MAX(tip_amount)
+      FROM green_taxi_data, taxi_zones
+      WHERE "PULocationID" = "LocationID"
+      AND "Zone" = 'Astoria')
+  
