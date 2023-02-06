@@ -67,11 +67,11 @@ def transform(path: Path) -> pd.DataFrame:
     
     
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='parameters for identifying the correct taxi data')
-    parser.add_argument('--year', required=True, help='year of the taxi ride data')
-    parser.add_argument('--month', required=True, help='month of the taxi ride data')
-    parser.add_argument('--color', required=True, help='color of the taxi')
-    args = parser.parse_args()
-    monthlist = []
-    monthlist.append(args.month)
-    etl_gcs_to_bq_parent(months_list, args.year, args.color)
+#     parser = argparse.ArgumentParser(description='parameters for identifying the correct taxi data')
+#     parser.add_argument('--year', required=True, help='year of the taxi ride data')
+#     parser.add_argument('--month', required=True, help='month of the taxi ride data')
+#     parser.add_argument('--color', required=True, help='color of the taxi')
+#     args = parser.parse_args()
+#     monthlist = []
+#     monthlist.append(args.month)
+    etl_gcs_to_bq_parent([11], 2020, "green")
