@@ -1,0 +1,70 @@
+# To transfer the data from google cloud storage to big query
+
+from pathlib import Path
+import pandas as pd
+import os
+
+from prefect import flow, task
+from prefect_gcp.cloud_storage import GcsBucket
+from prefect_gcp import GcpCredentials
+
+
+@task(log_prints=True)
+def extract_from_gcs(color: str, year: str, month: str) -> Path:
+    """Downlaod trip data from GCS"""
+    curr_path = os.getcwd()
+    dataset_file = f'{color}_tripdata_{year}-{month:02}.parquet'
+    gcs_path = Path(curr_path, "data", dataset_file)
+    gcs_block = GcsBucket.load("taxi-gcs")
+    # I have the local and gcs path as the same one in this case
+    gcs_block.get_directory(from_path=gcs_path, local_path=gcs_path)
+    return gcs_path
+
+
+@task(log_prints=True)
+def write_bq(df: pd.DataFrame, color) -> None:
+    """Write DataFrame to BigQuery"""
+
+    # pandas have a bigquery function ... nice
+    gcp_credentials_block = GcpCredentials.load("gcp-taxi-cred")
+    df.to_gbq(destination_table=f"taxi_dataset.{color}_taxi_rides",
+              project_id="striped-harbor-375816",
+              credentials=gcp_credentials_block.get_credentials_from_service_account(),
+              chunksize=500_000,
+              if_exists="append")
+
+
+@flow(log_prints=True)
+def etl_gcs_to_bq(months_list: list, year: int, color: str):
+    """Main ETL flow to load data into Big Query"""
+    row_sum = 0
+    for month in months_list:
+        path = extract_from_gcs(color, year, month)
+        print("GCS PATH")
+        print(path)
+        # Not really needed for homework but as the two ex. datasets have no empty passengers...
+        df = transform(path)
+        row_sum += len(df)
+        write_bq(df, color)
+    print("Processed Rows: " + str(row_sum))
+
+
+@task(log_prints=True)
+def transform(path: Path) -> pd.DataFrame:
+    """Data cleaning example"""
+    df = pd.read_parquet(path)
+    print(f"pre: missing passenger count: {df['passenger_count'].isna().sum()}")
+    df['passenger_count'].fillna(0)
+    print(f"post: missing passenger count: {df['passenger_count'].isna().sum()}")
+    return df
+
+
+if __name__ == "__main__":
+    # Homework additions
+    # entry point should accept list of months, year, taxi color
+    # print the total number of rows ingested
+    # load yellow taxi data for feb 2019 and march 2019 into gcs first then to big query with this script
+    months_list = [2, 3]
+    year = 2019
+    color = "yellow"
+    path = etl_gcs_to_bq(months_list, year, color)
