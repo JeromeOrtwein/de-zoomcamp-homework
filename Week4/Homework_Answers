@@ -1,0 +1,48 @@
+Question 1:
+What is the count of records in the model fact_trips after running all 
+models with the test run variable disabled and filtering for 2019 and 2020 data only (pickup datetime)?
+
+Answer: 
+Non of the Answers possible seemed to work for me maybe the wrong datasets were used.
+
+Green_tripdata has 7.778.101 overall
+Yellow_tripdata has 109.047.518 overall
+
+Query:
+SELECT COUNT(DISTINCT(tripid)) FROM `striped-harbor-375816.taxi_dataset.fact_trips` 
+WHERE EXTRACT(YEAR FROM pickup_datetime) IN (2019,2020)
+
+My Result: 57102622 so the closest would be 61648442
+
+
+Question 2:
+What is the distribution between service type filtering by years 2019 and 2020 data as done in the videos?
+Link to the visualization https://lookerstudio.google.com/s/rL-H23Ss2fQ
+
+My Result was 94.5/5.5 even with filtered data 2019/2020 -> Closest was 94/6
+
+Question 3: 
+What is the count of records in the model stg_fhv_tripdata after running all models with the test run variable disabled (:false)?
+
+Query:
+SELECT COUNT(*) FROM `striped-harbor-375816.taxi_dataset.stg_fhv_tripdata` 
+
+Result: 43244696
+
+Question 4:
+What is the count of records in the model fact_fhv_trips after running all dependencies with the test run variable disabled (:false)?
+
+Query:
+SELECT COUNT(*) FROM `striped-harbor-375816.taxi_dataset.fact_fhv_trips` 
+WHERE EXTRACT(YEAR FROM pickup_datetime) IN (2019)
+
+Result: 22998722
+
+Question 5:
+What is the month with the biggest amount of rides after building a tile for the fact_fhv_trips table?
+Link to the dashboard: https://lookerstudio.google.com/reporting/125b467f-fb1c-4be1-8788-97947008d75f
+
+Result: January
+
+
+
